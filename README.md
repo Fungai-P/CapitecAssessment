@@ -331,8 +331,8 @@ Multiple providers may report the same transaction.
 
 Example:
 
-    BankB        Uber    -60
-    CardNetwork  Uber    -60
+    BankB     Uber    -60
+    Card      Uber    -60
 
 These represent the same real-world payment.
 
