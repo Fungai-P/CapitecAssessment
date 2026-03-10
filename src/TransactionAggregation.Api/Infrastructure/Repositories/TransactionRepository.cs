@@ -138,14 +138,14 @@ public class TransactionRepository : ITransactionRepository
     {
         var sql =
             """
-            INSERT INTO "Transactions"
+            INSERT INTO "AggregatedTransactions"
             ("Id", "IdempotencyKey", "CustomerId", "ExternalTransactionId", "Source", "Amount", "Currency", "Category", "Merchant", "Description", "TransactionDateUtc", "CreatedAtUtc")
             VALUES
             """ + string.Join(",",
                 batch.Select((x, i) =>
                     $"(@p{i}_id, @p{i}_key, @p{i}_customerId, @p{i}_externalId, @p{i}_source, @p{i}_amount, @p{i}_currency, @p{i}_category, @p{i}_merchant, @p{i}_description, @p{i}_date, @p{i}_created)")) +
             """
-            ON CONFLICT ("IdempotencyKey") DO NOTHING;
+            ON CONFLICT DO NOTHING;
             """;
 
         var parameters = new List<object>();
