@@ -6,12 +6,7 @@ using TransactionAggregation.Api.Infrastructure.Repositories;
 
 namespace TransactionAggregation.Api.Application.Handlers;
 
-public interface IGetTransactionByIdHandler
-{
-    Task<IReadOnlyCollection<AggregatedTransactionResponse>> HandleAsync(string customerId, CancellationToken cancellationToken);
-}
-
-public class GetTransactionByIdHandler : IRequestHandler<GetTransactionByIdQuery, IReadOnlyCollection<AggregatedTransactionResponse>>
+public class GetTransactionByIdHandler : IRequestHandler<GetTransactionByIdQuery, AggregatedTransactionResponse>
 {
     private readonly ITransactionRepository _transactionRepository;
 
@@ -20,10 +15,10 @@ public class GetTransactionByIdHandler : IRequestHandler<GetTransactionByIdQuery
         _transactionRepository = transactionRepository;
     }
 
-    public async Task<IReadOnlyCollection<AggregatedTransactionResponse>> Handle(GetTransactionByIdQuery query, CancellationToken cancellationToken)
+    public async Task<AggregatedTransactionResponse> Handle(GetTransactionByIdQuery query, CancellationToken cancellationToken)
     {
-        var transactions = await _transactionRepository.GetByCustomerAsync(query.CustomerId, cancellationToken);
+        var transaction = await _transactionRepository.GetByIdAsync(query.Id, cancellationToken);
 
-        return transactions.Select(x => x.Map()).ToList();
+        return transaction.Map();
     }
 }

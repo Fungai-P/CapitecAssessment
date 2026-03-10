@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using TransactionAggregation.Api.Domain.External;
 
 namespace TransactionAggregation.Api.Infrastructure.Services;
@@ -36,14 +37,15 @@ public class TransactionIdempotencyService : ITransactionIdempotencyService
     private static string NormalizeText(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return "";
+            return string.Empty;
 
         var normalized = value.Trim().ToLowerInvariant();
 
-        normalized = normalized.Replace("  ", " ");
         normalized = normalized.Replace("-", "");
         normalized = normalized.Replace("_", "");
         normalized = normalized.Replace(".", "");
+
+        normalized = Regex.Replace(normalized, @"\s+", " ");
 
         return normalized;
     }

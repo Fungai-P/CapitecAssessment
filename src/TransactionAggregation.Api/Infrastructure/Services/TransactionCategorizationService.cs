@@ -1,3 +1,5 @@
+using TransactionAggregation.Api.Domain.Constants;
+
 namespace TransactionAggregation.Api.Infrastructure.Services;
 
 public class TransactionCategorizationService : ITransactionCategorizationService
@@ -6,30 +8,43 @@ public class TransactionCategorizationService : ITransactionCategorizationServic
     {
         var text = $"{description} {merchant}".ToLowerInvariant();
 
-        if (amount > 0 && (text.Contains("salary") || text.Contains("wage")))
-            return "Income";
+        if (amount > 0 && ContainsAny(text, TransactionKeywordConstants.SalaryKeywords))
+            return TransactionCategoryConstants.Income;
 
-        if (text.Contains("uber") || text.Contains("bolt"))
-            return "Transport";
+        if (ContainsAny(text, TransactionKeywordConstants.TransportKeywords))
+            return TransactionCategoryConstants.Transport;
 
-        if (text.Contains("shoprite") || text.Contains("checkers") || text.Contains("pick n pay") || text.Contains("woolworths"))
-            return "Groceries";
+        if (ContainsAny(text, TransactionKeywordConstants.GroceryKeywords))
+            return TransactionCategoryConstants.Groceries;
 
-        if (text.Contains("netflix") || text.Contains("spotify") || text.Contains("showmax") || text.Contains("dstv"))
-            return "Entertainment";
+        if (ContainsAny(text, TransactionKeywordConstants.EntertainmentKeywords))
+            return TransactionCategoryConstants.Entertainment;
 
-        if (text.Contains("shell") || text.Contains("engen") || text.Contains("bp") || text.Contains("sasol"))
-            return "Fuel";
+        if (ContainsAny(text, TransactionKeywordConstants.FuelKeywords))
+            return TransactionCategoryConstants.Fuel;
 
-        if (text.Contains("rent") || text.Contains("landlord") || text.Contains("property"))
-            return "Housing";
+        if (ContainsAny(text, TransactionKeywordConstants.HousingKeywords))
+            return TransactionCategoryConstants.Housing;
 
-        if (text.Contains("pharmacy") || text.Contains("clinic") || text.Contains("hospital") || text.Contains("medical"))
-            return "Healthcare";
+        if (ContainsAny(text, TransactionKeywordConstants.HealthcareKeywords))
+            return TransactionCategoryConstants.Healthcare;
 
-        if (text.Contains("restaurant") || text.Contains("kfc") || text.Contains("mcd") || text.Contains("steers") || text.Contains("debonairs"))
-            return "Dining";
+        if (ContainsAny(text, TransactionKeywordConstants.DiningKeywords))
+            return TransactionCategoryConstants.Dining;
 
-        return amount > 0 ? "Income" : "Uncategorized";
+        return amount > 0
+            ? TransactionCategoryConstants.Income
+            : TransactionCategoryConstants.Uncategorized;
+    }
+
+    private static bool ContainsAny(string text, IEnumerable<string> keywords)
+    {
+        foreach (var keyword in keywords)
+        {
+            if (text.Contains(keyword))
+                return true;
+        }
+
+        return false;
     }
 }

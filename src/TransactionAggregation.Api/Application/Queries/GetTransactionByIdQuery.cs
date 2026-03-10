@@ -3,11 +3,11 @@ using TransactionAggregation.Api.API.Responses;
 
 namespace TransactionAggregation.Api.Application.Queries;
 
-public class GetTransactionByIdQuery : IRequest<IReadOnlyCollection<AggregatedTransactionResponse>>
+public class GetTransactionByIdQuery : IRequest<AggregatedTransactionResponse>
 {
-    public string CustomerId { get; }
-    public GetTransactionByIdQuery(string customerId)
+    public Guid Id { get; }
+    public GetTransactionByIdQuery(Guid id)
     {
-        CustomerId = customerId;
+        Id = id;
     }
 }
