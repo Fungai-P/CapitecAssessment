@@ -77,6 +77,10 @@ The API automatically redirects the root URL to Swagger:
 
 Swagger UI allows exploration and testing of all endpoints.
 
+Via the endpoint below to pull transaction data from multiple sources and aggregate into the database:
+    
+    api/aggregation/run
+
 # Background Job Execution
 
 Aggregation runs as a **Hangfire job**.
