@@ -6,7 +6,6 @@ namespace TransactionAggregation.Api.Infrastructure.Repositories;
 
 public interface ITransactionRepository
 {
-    Task<UpsertResult> UpsertManyAsync(IReadOnlyCollection<AggregatedTransaction> transactions, CancellationToken cancellationToken = default);
     Task<PagedResult<AggregatedTransaction>> SearchAsync(TransactionSearch transactionSearch, CancellationToken cancellationToken = default);
     Task<AggregatedTransaction?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<AggregatedTransaction>> GetByCustomerAsync(string customerId, CancellationToken cancellationToken = default);
@@ -14,6 +13,6 @@ public interface ITransactionRepository
     Task<IReadOnlyCollection<CategorySummary>> GetCategorySummaryAsync(CancellationToken cancellationToken = default);
     Task<TransactionSummary> GetOverallSummaryAsync(CancellationToken cancellationToken = default);
     Task<int> InsertManyIgnoreDuplicatesAsync(
-        List<AggregatedTransaction> transactions,
+        IReadOnlyCollection<AggregatedTransaction> transactions,
         CancellationToken cancellationToken = default);
 }

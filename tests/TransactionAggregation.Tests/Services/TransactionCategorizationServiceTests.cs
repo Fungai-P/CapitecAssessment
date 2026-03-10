@@ -1,4 +1,5 @@
-﻿using TransactionAggregation.Api.Infrastructure.Services;
+﻿using TransactionAggregation.Api.Domain.Constants;
+using TransactionAggregation.Api.Infrastructure.Services;
 using Xunit;
 
 namespace TransactionAggregation.Tests.Services;
@@ -8,13 +9,12 @@ public class TransactionCategorizationServiceTests
     private readonly TransactionCategorizationService _service = new();
 
     [Theory]
-    [InlineData("monthly salary payment", null, 5000, "Income")]
-    [InlineData("company payroll", null, 2500, "Income")]
-    [InlineData("weekly wage", null, 900, "Income")]
-    [InlineData("uber trip", null, -120, "Transport")]
-    [InlineData("checkers xtra savings", null, -250, "Groceries")]
-    [InlineData("netflix subscription", null, -199, "Entertainment")]
-
+    [InlineData("monthly salary payment", null, 5000, TransactionCategoryConstants.Income)]
+    [InlineData("company payroll", null, 2500, TransactionCategoryConstants.Income)]
+    [InlineData("weekly wage", null, 900, TransactionCategoryConstants.Income)]
+    [InlineData("uber trip", null, -120, TransactionCategoryConstants.Transport)]
+    [InlineData("checkers xtra savings", null, -250, TransactionCategoryConstants.Groceries)]
+    [InlineData("netflix subscription", null, -199, TransactionCategoryConstants.Entertainment)]
     public void Categorize_KnownKeywords_ReturnsExpectedCategory(
         string description,
         string? merchant,
@@ -31,7 +31,7 @@ public class TransactionCategorizationServiceTests
     {
         var result = _service.Categorize("card purchase", "Uber", -50);
 
-        Assert.Equal("Transport", result);
+        Assert.Equal(TransactionCategoryConstants.Transport, result);
     }
 
     [Fact]
@@ -39,7 +39,7 @@ public class TransactionCategorizationServiceTests
     {
         var result = _service.Categorize("NETFLIX subscription", null, -199);
 
-        Assert.Equal("Entertainment", result);
+        Assert.Equal(TransactionCategoryConstants.Entertainment, result);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class TransactionCategorizationServiceTests
     {
         var result = _service.Categorize("random transfer", null, 100);
 
-        Assert.Equal("Income", result);
+        Assert.Equal(TransactionCategoryConstants.Income, result);
     }
 
     [Fact]
@@ -55,7 +55,7 @@ public class TransactionCategorizationServiceTests
     {
         var result = _service.Categorize("random card purchase", null, -100);
 
-        Assert.Equal("Uncategorized", result);
+        Assert.Equal(TransactionCategoryConstants.Uncategorized, result);
     }
 
     [Fact]
@@ -63,6 +63,6 @@ public class TransactionCategorizationServiceTests
     {
         var result = _service.Categorize("salary reversal", null, -5000);
 
-        Assert.Equal("Uncategorized", result);
+        Assert.Equal(TransactionCategoryConstants.Uncategorized, result);
     }
 }

@@ -1,9 +1,4 @@
 ﻿using NSubstitute;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TransactionAggregation.Api.Domain.Entities;
 using TransactionAggregation.Api.Domain.External;
 using TransactionAggregation.Api.Infrastructure.Repositories;
@@ -57,14 +52,10 @@ public class AggregationServiceTests
         List<AggregatedTransaction>? saved = null;
 
         _transactionRepository
-            .UpsertManyAsync(
+            .InsertManyIgnoreDuplicatesAsync(
                 Arg.Do<List<AggregatedTransaction>>(x => saved = x),
                 Arg.Any<CancellationToken>())
-            .Returns(new UpsertResult
-            {
-                Inserted = 1,
-                Updated = 0
-            });
+            .Returns(1);
 
         var sut = CreateSut();
 
@@ -86,7 +77,7 @@ public class AggregationServiceTests
         await _aggregationRunRepository.Received(1)
             .UpdateAsync(
                 Arg.Is<AggregationRun>(x =>
-                    x.Status == "Completed" &&
+                    x.Status == Api.Domain.Enums.AggregationRunStatus.Completed &&
                     x.RecordsFetched == 1 &&
                     x.RecordsInserted == 1 &&
                     x.RecordsUpdated == 0 &&
@@ -133,12 +124,8 @@ public class AggregationServiceTests
         List<AggregatedTransaction>? saved = null;
 
         _transactionRepository
-            .UpsertManyAsync(Arg.Do<List<AggregatedTransaction>>(x => saved = x), Arg.Any<CancellationToken>())
-            .Returns(new UpsertResult
-            {
-                Inserted = 1,
-                Updated = 0
-            });
+            .InsertManyIgnoreDuplicatesAsync(Arg.Do<List<AggregatedTransaction>>(x => saved = x), Arg.Any<CancellationToken>())
+            .Returns(1);
 
         var sut = CreateSut();
 
@@ -149,7 +136,7 @@ public class AggregationServiceTests
 
         await _aggregationRunRepository.Received(1)
             .UpdateAsync(Arg.Is<AggregationRun>(x =>
-                x.Status == "Completed" &&
+                x.Status == Api.Domain.Enums.AggregationRunStatus.Completed &&
                 x.RecordsFetched == 2 &&
                 x.RecordsInserted == 1 &&
                 x.RecordsSkipped == 1), Arg.Any<CancellationToken>());
@@ -170,12 +157,12 @@ public class AggregationServiceTests
         await _aggregationRunRepository.Received(1)
             .UpdateAsync(
                 Arg.Is<AggregationRun>(x =>
-                    x.Status == "Failed" &&
+                    x.Status == Api.Domain.Enums.AggregationRunStatus.Failed &&
                     x.ErrorMessage == "boom"),
                 Arg.Any<CancellationToken>());
 
         await _transactionRepository.DidNotReceive()
-            .UpsertManyAsync(
+            .InsertManyIgnoreDuplicatesAsync(
                 Arg.Any<List<AggregatedTransaction>>(),
                 Arg.Any<CancellationToken>());
     }

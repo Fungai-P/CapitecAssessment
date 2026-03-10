@@ -15,39 +15,6 @@ public class TransactionRepository : ITransactionRepository
         _dbContext = dbContext;
     }
 
-    public async Task<UpsertResult> UpsertManyAsync(IReadOnlyCollection<AggregatedTransaction> transactions, CancellationToken cancellationToken = default)
-    {
-        var result = new UpsertResult();
-
-        foreach (var transaction in transactions)
-        {
-            var existing = await _dbContext.AggregatedTransactions
-                .FirstOrDefaultAsync(
-                    x => x.Source == transaction.Source && x.ExternalTransactionId == transaction.ExternalTransactionId,
-                    cancellationToken);
-
-            if (existing is null)
-            {
-                await _dbContext.AggregatedTransactions.AddAsync(transaction, cancellationToken);
-                result.Inserted++;
-            }
-            else
-            {
-                existing.CustomerId = transaction.CustomerId;
-                existing.Description = transaction.Description;
-                existing.Merchant = transaction.Merchant;
-                existing.Amount = transaction.Amount;
-                existing.Currency = transaction.Currency;
-                existing.TransactionDateUtc = transaction.TransactionDateUtc;
-                existing.Category = transaction.Category;
-                result.Updated++;
-            }
-        }
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        return result;
-    }
-
     public async Task<PagedResult<AggregatedTransaction>> SearchAsync(TransactionSearch transactionSearch, CancellationToken cancellationToken = default)
     {
         var query = _dbContext.AggregatedTransactions.AsNoTracking().AsQueryable();
@@ -147,7 +114,7 @@ public class TransactionRepository : ITransactionRepository
     }
 
     public async Task<int> InsertManyIgnoreDuplicatesAsync(
-        List<AggregatedTransaction> transactions,
+        IReadOnlyCollection<AggregatedTransaction> transactions,
         CancellationToken cancellationToken = default)
     {
         if (transactions.Count == 0)

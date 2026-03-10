@@ -95,6 +95,8 @@ The dashboard provides visibility into:
 -   failed jobs
 -   retries
 
+In production, access to this dashboard MUST be restricted using ASP.NET Core authentication/authorization. For the purposes of this demo, it has only bee restricted to the **development environment**.
+
 # System Architecture
 
 The architecture follows a **simplified CQRS-style design** used for

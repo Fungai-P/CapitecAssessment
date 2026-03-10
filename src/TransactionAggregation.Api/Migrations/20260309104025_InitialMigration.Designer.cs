@@ -13,7 +13,7 @@ namespace TransactionAggregation.Api.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
     [Migration("20260309104025_IntialMigration")]
-    partial class IntialMigration
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

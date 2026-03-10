@@ -27,9 +27,9 @@ public class TransactionsController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id}")]
-    [Produces<IReadOnlyCollection<AggregatedTransactionResponse>>()]
-    public async Task<IActionResult> GetById(string id, CancellationToken cancellationToken)
+    [HttpGet("{id:guid}")]
+    [Produces<AggregatedTransactionResponse>()]
+    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
         var transaction = await _mediator.Send( new GetTransactionByIdQuery(id), cancellationToken);
 

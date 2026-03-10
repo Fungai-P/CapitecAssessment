@@ -1,4 +1,5 @@
 using TransactionAggregation.Api.Domain.Entities;
+using TransactionAggregation.Api.Domain.Enums;
 using TransactionAggregation.Api.Domain.External;
 using TransactionAggregation.Api.Infrastructure.Repositories;
 
@@ -32,7 +33,7 @@ public class AggregationService : IAggregationService
         {
             Id = Guid.NewGuid(),
             StartedAtUtc = DateTime.UtcNow,
-            Status = "Running",
+            Status = AggregationRunStatus.Running,
             TriggeredBy = triggeredBy
         };
 
@@ -65,7 +66,7 @@ public class AggregationService : IAggregationService
                 .Select(sourceTransaction => new AggregatedTransaction
                 {
                     Id = Guid.NewGuid(),
-                    IdempotencyKey = _transactionIdempotencyService.Build(sourceTransaction), // Enforce idempotency
+                    IdempotencyKey = _transactionIdempotencyService.Build(NormalizeSourceTransaction(sourceTransaction)), // Enforce idempotency
                     CustomerId = sourceTransaction.CustomerId,
                     ExternalTransactionId = sourceTransaction.ExternalTransactionId,
                     Source = sourceTransaction.SourceName,
@@ -82,14 +83,14 @@ public class AggregationService : IAggregationService
                 })
                 .ToList();
 
-            var insertResult = await _transactionRepository.UpsertManyAsync(aggregatedTransactions, cancellationToken);
+            var insertResult = await _transactionRepository.InsertManyIgnoreDuplicatesAsync(aggregatedTransactions, cancellationToken);
 
             run.CompletedAtUtc = DateTime.UtcNow;
-            run.Status = "Completed";
+            run.Status = AggregationRunStatus.Completed;
             run.RecordsFetched = fetchedTransactions.Count;
-            run.RecordsInserted = insertResult.Inserted;
-            run.RecordsUpdated = insertResult.Updated;
-            run.RecordsSkipped = fetchedTransactions.Count - (insertResult.Inserted + insertResult.Updated);
+            run.RecordsInserted = insertResult;
+            run.RecordsUpdated = 0;
+            run.RecordsSkipped = fetchedTransactions.Count - insertResult;
             run.ErrorMessage = null;
 
             await _aggregationRunRepository.UpdateAsync(run, cancellationToken);
@@ -97,7 +98,7 @@ public class AggregationService : IAggregationService
         catch (Exception ex)
         {
             run.CompletedAtUtc = DateTime.UtcNow;
-            run.Status = "Failed";
+            run.Status = AggregationRunStatus.Failed;
             run.ErrorMessage = ex.Message;
 
             await _aggregationRunRepository.UpdateAsync(run, cancellationToken);
